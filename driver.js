@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const NodeId = require('./id');
+const {NodeId} = require('./id');
 const DHT = require('./dht');
 
 
@@ -9,8 +9,18 @@ function createHash(from) {
     return hash.digest();
 }
 const other = NodeId.generateRandomId();
+const other2 = NodeId.generateRandomId();
+const other3 = NodeId.generateRandomId();
+const other4 = NodeId.generateRandomId();
+
 const dht = new DHT();
 dht.store(other);
+dht.store(other2);
+dht.store(other3);
+dht.store(other4);
+
+console.log(dht._routingTable.toString());
+
 
 // const hash = createHash('My Hash Value 1');
 // const hash2 = createHash('My Hash Value 2');

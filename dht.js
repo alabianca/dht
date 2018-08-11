@@ -1,9 +1,9 @@
-const ID = require('./id');
+const {NodeId} = require('./id');
 const RoutingTable = require('./routingTable');
 const crypto = require('crypto');
 
 function DHT() {
-    this._id = ID.generateRandomId();
+    this._id = NodeId.generateRandomId();
     this._routingTable = new RoutingTable(this._id);
 }
 

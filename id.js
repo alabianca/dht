@@ -30,12 +30,14 @@ NodeId.prototype.toString = function(mode) {
     for(let i = 0; i < NodeId.SIZE; i++) {
         bits = bits + this._buffer[i].toString(2)
     }
+    return bits;
     
 }
 
 /**
  * 
- * @param {NodeId} id 
+ * @param {NodeId} id
+ * @returns {Distance} distance 
  */
 NodeId.prototype.distanceTo = function(id) {
     if(!id instanceof NodeId) {
@@ -49,7 +51,7 @@ NodeId.prototype.distanceTo = function(id) {
         //console.log('XOR: ', res[i].toString(2) , this._buffer[i].toString(2), id._buffer[i].toString(2))
     }
 
-    return res;
+    return new Distance(res);
 
 }
 
@@ -105,4 +107,31 @@ NodeId.prototype.getBitAt = function(index) {
     return 0;
 }
 
-module.exports = NodeId;
+
+
+function Distance(buf) {
+    this._buf = buf;
+}
+
+Distance.prototype.getBitAt = function(index) {
+    if(index >= NodeId.BIT_SIZE) {
+        throw new Error('Index Out of Range');
+    }
+
+    const bufferIndex = (index/8) | 0;
+    const mask = 1 << (7 - (index % 8));
+    const bit = this._buf[bufferIndex] & mask;
+
+    if(bit) {
+        return 1;
+    }
+
+    return 0;
+}
+
+Distance.prototype.getBuffer = function() {
+    return this._buf;
+}
+
+module.exports.NodeId = NodeId;
+module.exports.Distance = Distance;
