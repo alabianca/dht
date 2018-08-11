@@ -58,7 +58,7 @@ RoutingTable.prototype.toString = function() {
             ids = ids + data[j].toString() + " ";
         }
 
-        s = s + `Bucket ${i}: [${ids}] \n`
+        s = s + `Bucket ${RoutingTable.SIZE - i}: [${ids}] \n`
     }
 
     return s;
