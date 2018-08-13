@@ -107,6 +107,20 @@ NodeId.prototype.getBitAt = function(index) {
     return 0;
 }
 
+/**
+ * 
+ * @param {NodeId} other returns true if Id is equal to 'other' id. False otherwise
+ */
+NodeId.prototype.equal = function(other) {
+
+    for(let i = 0; i < NodeId.SIZE; i++) {
+        if(this._buffer[i] != other._buffer[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 
 function Distance(buf) {

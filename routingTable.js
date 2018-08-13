@@ -1,4 +1,5 @@
 const KBucket = require('./k-bucket');
+const Contact = require('./contact');
 const {NodeId, Distance} = require('./id');
 
 /**
@@ -17,14 +18,14 @@ RoutingTable.SIZE = 160;
 
 /**
  * 
- * @param {NodeId} contact 
+ * @param {Contact} contact 
  */
-RoutingTable.prototype.storeContact = function(contact) {
+RoutingTable.prototype.storeContact = function(contact, pingFunc, cb) {
     //const delta = this._id.distanceTo(contact);
-    const distance = this._id.distanceTo(contact);
+    const distance = this._id.distanceTo(contact.getId());
     const bucketIndex = this._findKBucket(distance);
     const bucket = this._kbuckets[bucketIndex];
-    bucket.add(contact);
+    bucket.add(contact, pingFunc, cb);
 }
 
 /**
@@ -43,6 +44,15 @@ RoutingTable.prototype._findKBucket = function(distance) {
     
 }
 
+/**
+ * 
+ * @param {Number} index index of the bucket
+ * @return {KBucket} k-bucket
+ */
+RoutingTable.prototype.getBucketAt = function(index) {
+    return this._kbuckets[index];
+}
+
 RoutingTable.prototype.toString = function() {
     let s = "";
 
@@ -55,7 +65,7 @@ RoutingTable.prototype.toString = function() {
         const data = this._kbuckets[i].getList();
 
         for(let j = 0; j < data.length; j++) {
-            ids = ids + data[j].toString() + " ";
+            ids = ids + data[j].getId().toString('hex') + " ";
         }
 
         s = s + `Bucket ${RoutingTable.SIZE - i}: [${ids}] \n`

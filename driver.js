@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const {NodeId} = require('./id');
 const DHT = require('./dht');
+const Contact = require('./contact');
 
 
 function createHash(from) {
@@ -13,13 +14,18 @@ const other2 = NodeId.generateRandomId();
 const other3 = NodeId.generateRandomId();
 const other4 = NodeId.generateRandomId();
 
-const dht = new DHT();
-dht.store(other);
-dht.store(other2);
-dht.store(other3);
-dht.store(other4);
+const c1 = new Contact(other, 'Hello');
+const c2 = new Contact(other2, "World");
+const c3 = new Contact(other3, "Hi");
+const c4 = new Contact(other4, "There");
 
-console.log(dht._routingTable.toString());
+const dht = new DHT();
+dht.store(c1);
+dht.store(c2);
+// dht.store(c3);
+// dht.store(c4);
+
+setTimeout(()=> console.log(dht._routingTable.toString()), 5000);
 
 
 // const hash = createHash('My Hash Value 1');

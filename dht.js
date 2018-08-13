@@ -1,5 +1,6 @@
 const {NodeId} = require('./id');
 const RoutingTable = require('./routingTable');
+const Contact = require('./contact');
 const crypto = require('crypto');
 
 function DHT() {
@@ -7,17 +8,28 @@ function DHT() {
     this._routingTable = new RoutingTable(this._id);
 }
 
+//statics
+DHT.ALPHA  = 3; // concurrency limit
+
 /**
  * 
- * @param {ID} id 
+ * @param {Contact} contact 
  */
-DHT.prototype.store = function(id) {
-    this._routingTable.storeContact(id);
+DHT.prototype.store = function(contact) {
+    this._routingTable.storeContact(contact, this.sendPing.bind(this), (added)=>{
+        console.log('Added: ', added);
+    });
+
 }
 
-
-
-
+DHT.prototype.sendPing = function(contact,onResponse) {
+    console.log(this._id.toString('hex'));
+    console.log(contact.getId().toString('hex'))
+    //this will the the pinging of the rpc
+    setTimeout(()=>{
+        onResponse(false);
+    },200)
+}
 
 //private
 function generateHash(from) {
