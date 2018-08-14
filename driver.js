@@ -20,12 +20,27 @@ const c3 = new Contact(other3, "Hi");
 const c4 = new Contact(other4, "There");
 
 const dht = new DHT();
-dht.store(c1);
-dht.store(c2);
+// for(let i = 0; i < 160; i++) {
+//     const id = NodeId.generateRandomId();
+//     const c = new Contact(id,"Contact:"+i);
+//     dht.store(c);
+// }
+let counter = 0;
+let id = setInterval(()=>{
+    counter++;
+    const id = NodeId.generateRandomId();
+    const c = new Contact(id,"Contact:"+counter);
+    dht.store(c);
+    if(counter == 160) {
+        clearInterval(id);
+    }
+},350)
+// dht.store(c1);
+// dht.store(c2);
 // dht.store(c3);
 // dht.store(c4);
 
-setTimeout(()=> console.log(dht._routingTable.toString()), 5000);
+//setTimeout(()=> console.log(dht._routingTable.toString()), 10000);
 
 
 // const hash = createHash('My Hash Value 1');

@@ -17,17 +17,16 @@ DHT.ALPHA  = 3; // concurrency limit
  */
 DHT.prototype.store = function(contact) {
     this._routingTable.storeContact(contact, this.sendPing.bind(this), (added)=>{
-        console.log('Added: ', added);
+        //console.log('Added: ', added);
     });
 
 }
 
 DHT.prototype.sendPing = function(contact,onResponse) {
-    console.log(this._id.toString('hex'));
-    console.log(contact.getId().toString('hex'))
+    
     //this will the the pinging of the rpc
     setTimeout(()=>{
-        onResponse(false);
+        onResponse(true);
     },200)
 }
 

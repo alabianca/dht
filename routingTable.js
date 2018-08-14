@@ -63,12 +63,12 @@ RoutingTable.prototype.toString = function() {
 
         let ids = "";
         const data = this._kbuckets[i].getList();
-
+        const l = data.length;
         for(let j = 0; j < data.length; j++) {
             ids = ids + data[j].getId().toString('hex') + " ";
         }
 
-        s = s + `Bucket ${RoutingTable.SIZE - i}: [${ids}] \n`
+        s = s + `Bucket ${RoutingTable.SIZE - i} (${l}): [${ids}] \n`
     }
 
     return s;
