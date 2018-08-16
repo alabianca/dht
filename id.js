@@ -109,7 +109,8 @@ NodeId.prototype.getBitAt = function(index) {
 
 /**
  * 
- * @param {NodeId} other returns true if Id is equal to 'other' id. False otherwise
+ * @param {NodeId} other r
+ * @returns true if Id is equal to 'other' id. False otherwise
  */
 NodeId.prototype.equal = function(other) {
 
