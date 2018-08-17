@@ -34,13 +34,13 @@ let id = setInterval(()=>{
     if(counter == 160) {
         clearInterval(id);
     }
-},350)
+},20)
 // dht.store(c1);
 // dht.store(c2);
 // dht.store(c3);
 // dht.store(c4);
 
-//setTimeout(()=> console.log(dht._routingTable.toString()), 10000);
+setTimeout(()=> console.log(dht._routingTable.toString()), 10000);
 
 
 // const hash = createHash('My Hash Value 1');
