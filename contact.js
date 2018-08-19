@@ -21,4 +21,8 @@ Contact.prototype.getValue = function() {
     return this._value;
 }
 
+Contact.prototype.toString = function() {
+    return this._id.toString('hex');
+}
+
 module.exports = Contact;

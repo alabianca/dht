@@ -18,6 +18,59 @@ RoutingTable.SIZE = 160;
 
 /**
  * 
+ * @param {NodeId} nodeId the nodeId to which we are looking for close nodes for
+ * @param {Number} amount how many nodes we are looking for
+ * @returns {[Contact]}
+ */
+RoutingTable.prototype.findNodes = function(nodeId,amount) {
+    const nodes = [];
+    const distance = this._id.distanceTo(nodeId);
+    const bucketIndex = this._findKBucket(distance);
+    const bucket = this._kbuckets[bucketIndex];
+
+    // 1. Best Case scenatrio. Bucket contains enough Contacts
+    if(bucket.length > amount) { //find 'amount' nodes closest to nodeId
+        nodes = bucket.getXClosestNodes(nodeId,amount);
+        return nodes;
+    }
+
+    // 2. Bucket may not contain enough contacts. Go search near buckets until we have enough nodes
+    if(bucket.length <= amount) {
+        nodes.push(...bucket._data);
+    }
+
+    let stop = false;
+    let offset = 1;
+    let remainingSpots = amount - nodes.length;
+    while(remainingSpots > 0 && !stop) {
+        const upperBoundBucket = this._kbuckets[bucketIndex+offset];
+        const lowerBoundBucket = this._kbuckets[bucketIndex-offset];
+
+        if(upperBoundBucket) {
+            const contacts = upperBoundBucket.getXClosestNodes(nodeId,remainingSpots);
+            remainingSpots = remainingSpots - contacts.length;
+            nodes.push(...contacts);
+        }
+
+        if(lowerBoundBucket && remainingSpots > 0) {
+            const contacts = lowerBoundBucket.getXClosestNodes(nodeId,remainingSpots);
+            remainingSpots = remainingSpots - contacts.length;
+            nodes.push(...contacts);
+        }
+
+        if(!upperBoundBucket && !lowerBoundBucket) {
+            stop = true;
+        }
+
+        offset++;
+    }
+
+    return nodes;
+    
+}
+
+/**
+ * 
  * @param {Contact} contact 
  */
 RoutingTable.prototype.storeContact = function(contact, pingFunc, cb) {

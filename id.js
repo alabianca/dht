@@ -123,9 +123,33 @@ NodeId.prototype.equal = function(other) {
 }
 
 
-
+/**
+ * 
+ * @param {Buffer} buf 
+ */
 function Distance(buf) {
     this._buf = buf;
+}
+
+/**
+ * 
+ * @param {Distance} other
+ * @returns {Number} 0 if they are the same. 1 if other is 'larger', -1 if other is smaller 
+ */
+Distance.prototype.compareDistanceTo = function(other) {
+
+    for(let i = 0; i < this._buf.length; i++) {
+        if(this._buf[i] > other._buf[i]) {
+            return -1;
+        }
+
+        if(this._buf[i] < other._buf[i]) {
+            return 1;
+        }
+
+    }
+
+    return 0;
 }
 
 Distance.prototype.getBitAt = function(index) {
@@ -146,6 +170,10 @@ Distance.prototype.getBitAt = function(index) {
 
 Distance.prototype.getBuffer = function() {
     return this._buf;
+}
+
+Distance.prototype.toString = function() {
+    return this._buf.toString('hex');
 }
 
 module.exports.NodeId = NodeId;

@@ -4,11 +4,11 @@ const DHT = require('./dht');
 const Contact = require('./contact');
 
 
-function createHash(from) {
-    const hash = crypto.createHash('sha1');
-    hash.update(from);
-    return hash.digest();
-}
+// function createHash(from) {
+//     const hash = crypto.createHash('sha1');
+//     hash.update(from);
+//     return hash.digest();
+// }
 const other = NodeId.generateRandomId();
 const other2 = NodeId.generateRandomId();
 const other3 = NodeId.generateRandomId();
@@ -19,28 +19,33 @@ const c2 = new Contact(other2, "World");
 const c3 = new Contact(other3, "Hi");
 const c4 = new Contact(other4, "There");
 
-const dht = new DHT();
+
+const dht1 = DHT.bootstrap();
+const dht2  = DHT.bootstrap(dht1._id);
+
+
+
+//const dht = new DHT();
 // for(let i = 0; i < 160; i++) {
 //     const id = NodeId.generateRandomId();
 //     const c = new Contact(id,"Contact:"+i);
 //     dht.store(c);
 // }
-let counter = 0;
-let id = setInterval(()=>{
-    counter++;
-    const id = NodeId.generateRandomId();
-    const c = new Contact(id,"Contact:"+counter);
-    dht.store(c);
-    if(counter == 160) {
-        clearInterval(id);
-    }
-},20)
+// let counter = 0;
+// let id = setInterval(()=>{
+//     counter++;
+//     const id = NodeId.generateRandomId();
+//     const c = new Contact(id,"Contact:"+counter);
+//     dht.store(c);
+//     if(counter == 160) {
+//         clearInterval(id);
+//     }
+// },20)
 // dht.store(c1);
 // dht.store(c2);
 // dht.store(c3);
 // dht.store(c4);
 
-setTimeout(()=> console.log(dht._routingTable.toString()), 10000);
 
 
 // const hash = createHash('My Hash Value 1');

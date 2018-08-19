@@ -1,4 +1,5 @@
 const Contact = require('./contact');
+const {NodeId} = require('./id');
 /**
  * 
  * @param {NodeId} ownId 
@@ -12,6 +13,45 @@ function KBucket(ownId, index) {
 
 //statics
 KBucket.CAPACITY = 20;
+
+/**
+ * 
+ * @param {NodeId} nodeId 
+ * @param {number} x how many nodes we want
+ * @returns {[Contact]}
+ * @todo Optimize
+ */
+KBucket.prototype.getXClosestNodes = function(nodeId,x) {
+    const result = [];
+    let distances = [];
+    let map = {}; 
+
+    this._data.forEach((contact,index)=> {
+        const delta = nodeId.distanceTo(contact.getId());
+        map[delta] = index; //keep track of distances and their index of the corresponding node. This is possible as distances between Ids are uniform
+        distances.push(delta);
+    });
+
+    //sort the distances. Simple bubble sort. 
+    //TODO: think of a way to optimize this somehow. however, not a big deal as the bucket size will never be larger than 20
+    for(let i = 0; i < distances.length; i++) {
+        for(let j = 0; j < distances.length-i; j++) {
+
+            if(distances[j+1] && distances[j].compareDistanceTo(distances[j+1]) === -1) { //if distance[j] is larger do swap
+                const smaller = distances[j+1];
+                distances[j+1] = distances[j];
+                distances[j+1] = smaller;
+
+            }
+        }
+    }
+
+    const targetNodes = distances.slice(0,x).map(d => this._data[map[d]]);
+    distances = [];
+    map = {};
+    return targetNodes;
+
+}
 
 KBucket.prototype.getHead = function() {
     return this._data[0];
@@ -41,6 +81,7 @@ KBucket.prototype.add = function(contact, pingFunc, callback) {
     }
     // 1. 
     if(this._data.length < KBucket.CAPACITY) {
+        this.length++;
         this.addToTail(contact);
         process.nextTick(() => callback(true));
         return;
@@ -53,7 +94,7 @@ KBucket.prototype.add = function(contact, pingFunc, callback) {
             callback(false);
             return;
         }
-
+        this.length++;
         this._data.splice(0,1);
         this.addToTail(contact);
         callback(true);
