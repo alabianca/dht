@@ -3,7 +3,12 @@ const RoutingTable = require('./routingTable');
 const Contact = require('./contact');
 const crypto = require('crypto');
 
-function DHT() {
+/**
+ * 
+ * @param {*} rpcAdapter 
+ */
+function DHT(rpcAdapter) {
+    this._rpc = rpcAdapter;
     this._id = NodeId.generateRandomId();
     this._routingTable = new RoutingTable(this._id);
 }
@@ -13,16 +18,23 @@ DHT.ALPHA  = 3; // concurrency limit
 
 /**
  * @param {NodeId} [nodeId] optional gateway
+ * @param {*} rpcAdapter
  * @todo provide a RPC Adapter as first agrument to be provided in DHT constructor
  */
-DHT.bootstrap = function(nodeId) {
-    if(!nodeId) { //no id is provided. Will be only Node in network
-        return new DHT();
+DHT.bootstrap = function(rpcAdapter,nodeId,bootstrapped) {
+    if(typeof nodeId === 'function' && !bootstrapped) { //async
+        bootstrapped = nodeId;
+        process.nextTick(()=> bootstrapped(new DHT(rpcAdapter)));
+        return;
     }
-    console.log(nodeId.toString('hex'))
-    const dht = new DHT();
+    if(!nodeId) { //no id is provided. Will be only Node in network (sync)
+        return new DHT(rpcAdapter);
+    }
+
+    const dht = new DHT(rpcAdapter);
     dht._doBootstrap(nodeId,()=>{
         //bootstrapped
+        process.nextTick(() => bootstrapped(dht))
     });
 
 }
