@@ -5,15 +5,8 @@ const Contact = require('./contact');
 const RpcAdapter = require('./rpcAdapter');
 
 const rpc1 = new RpcAdapter("127.0.0.1", "7000")
-const rpc2 = new RpcAdapter("127.0.0.1", "5345");
+//const rpc2 = new RpcAdapter("127.0.0.1", "5345");
 
-
-
-// function createHash(from) {
-//     const hash = crypto.createHash('sha1');
-//     hash.update(from);
-//     return hash.digest();
-// }
 const other = NodeId.generateRandomId();
 const other2 = NodeId.generateRandomId();
 const other3 = NodeId.generateRandomId();
@@ -52,10 +45,13 @@ function addContacts(contacts,done) {
 }
 
 addContacts(contacts, ()=>{
-    console.log('bootstrapping 2');
-    const gateway = new Contact(dht1._id,dht1._address + ":" + dht1._port); 
-    const dht2 = DHT.bootstrap(rpc2,gateway);
-})
+    console.log('Node is ready: ');
+    console.log('Node ID: ' + dht1._id.toString('hex'));
+    console.log('IP: ' + dht1._address);
+    console.log('Port: ' + dht1._port);
+    //const gateway = new Contact(dht1._id,dht1._address + ":" + dht1._port); 
+    //const dht2 = DHT.bootstrap(rpc2,gateway);
+});
 
 //const dht = new DHT();
 // for(let i = 0; i < 160; i++) {

@@ -1,10 +1,16 @@
 const {NodeId} = require('./id');
 const Contact  = require('./contact');
+const dgram    = require('dgram');
 
 function RpcAdapter(address,port) {
     this._address = address;
     this._port = port;
     this._tasks = new TaskQueue(RpcAdapter.CONCURRENCY);
+
+    //set up socket to receive and send udatagrams
+    this._socket = dgram.createSocket('udp4');
+    this._socket.on('message', this._onMessage.bind(this));
+    this._socket.bind(port,address);
 }
 
 //statics
@@ -28,13 +34,44 @@ RpcAdapter.prototype.RPC_findNode = function(ip,port,nodeId) {
         console.log(ip);
         console.log(port);
         console.log(nodeId);
-        return resolve();
+        const msg = "FIND_NODE: " + nodeId;
+        this._send(msg,{port,address:ip}, ()=> resolve());
     })
 }
 
 RpcAdapter.prototype.RPC_store = function() {}
 RpcAdapter.prototype.RPC_ping = function() {}
 RpcAdapter.prototype.RPC_findValue = function() {}
+
+/**
+ * 
+ * @param {Buffer} message 
+ */
+RpcAdapter.prototype._onMessage = function(message) {
+    console.log(message.toString());
+}
+
+/**
+ * 
+ * @param {*} msg 
+ * @param {*} remote {port,address}
+ */
+RpcAdapter.prototype._send = function(msg,remote, sent) {
+    const buf = Buffer.from(msg);
+    const l = buf.length;
+    this._socket.send(buf,0,l,remote.port,remote.address,sent );
+}
+
+
+RpcAdapter.prototype.getAddress = function() {
+    return this._address;
+}
+
+RpcAdapter.prototype.getPort = function() {
+    return this._port;
+}
+
+
 
 /**
  * 
@@ -55,20 +92,15 @@ RpcAdapter.prototype._enqueueFindNode = function(ip,port,nodeId) {
     this._tasks.pushTask(task);
 }
 
-RpcAdapter.prototype.getAddress = function() {
-    return this._address;
-}
-
-RpcAdapter.prototype.getPort = function() {
-    return this._port;
-}
 
 
 
 
 
-
-
+/**
+ * 
+ * @param {Number} concurrency how many tasks are allowed to run concurrently
+ */
 function TaskQueue(concurrency) {
     this._concurrency = concurrency;
     this._running = 0;

@@ -9,17 +9,18 @@ NodeId.SIZE = 20 // 160 Bits
 NodeId.BIT_SIZE = 160 //how many bits in the id
 
 
-NodeId.fromHash = function(hash) {
-    if(hash.length > NodeId.SIZE) {
-        throw new Error(`Hash needs to be ${NodeId.BIT_SIZE} long`);
-    }
-    const buf = Buffer.from(hash);
-    return new NodeId(buf);
-}
-
 NodeId.generateRandomId = function() {
     const randomBytes = crypto.randomBytes(NodeId.SIZE);
     return new NodeId(randomBytes);
+}
+
+/**
+ * 
+ * @param {String} hash default encoding is hex
+ */
+NodeId.fromHash = function(hash) {
+    const buf = Buffer.from(hash,'hex');
+    return new NodeId(buf);
 }
 
 NodeId.prototype.toString = function(mode) {
