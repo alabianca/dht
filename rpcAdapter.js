@@ -7,7 +7,7 @@ function RpcAdapter(address,port) {
     this._port = port;
     this._tasks = new TaskQueue(RpcAdapter.CONCURRENCY);
 
-    //set up socket to receive and send udatagrams
+    //set up socket to receive and send
     this._socket = dgram.createSocket('udp4');
     this._socket.on('message', this._onMessage.bind(this));
     this._socket.bind(port,address);
