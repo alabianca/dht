@@ -21,6 +21,16 @@ Contact.prototype.getValue = function() {
     return this._value;
 }
 
+Contact.prototype.getIP = function() {
+    const split = this._value.split(':');
+    return split[0];
+}
+
+Contact.prototype.getPort = function() {
+    const split = this._value.split(':');
+    return split[1];
+}
+
 Contact.prototype.toString = function() {
     return this._id.toString('hex');
 }
