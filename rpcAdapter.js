@@ -1,8 +1,14 @@
-const {NodeId} = require('./id');
-const Contact  = require('./contact');
-const dgram    = require('dgram');
+const {NodeId}       = require('./id');
+const Contact        = require('./contact');
+const dgram          = require('dgram');
+const {EventEmitter} = require('events')
+
+
 
 function RpcAdapter(address,port) {
+    const emitter = EventEmitter.call(this);
+    RpcAdapter.prototype = Object.create(emitter.prototype);
+
     this._address = address;
     this._port = port;
     this._tasks = new TaskQueue(RpcAdapter.CONCURRENCY);
@@ -28,13 +34,15 @@ RpcAdapter.COMMAND_MAPPINGS = {
  * @param {String} port 
  * @param {String} nodeId 
  * @returns {Promise}
+ * @todo This is still high level. For local testing for now I am just sending stringified json. but that will need to change once I got the dht working for all rpcs
  */
 RpcAdapter.prototype.RPC_findNode = function(ip,port,nodeId) {
     return new Promise((resolve,reject)=>{
         console.log(ip);
         console.log(port);
         console.log(nodeId);
-        const msg = "FIND_NODE: " + nodeId;
+        const msg = JSON.stringify({type: "FIND_NODE", payload: nodeId});
+
         this._send(msg,{port,address:ip}, ()=> resolve());
     })
 }
@@ -45,10 +53,17 @@ RpcAdapter.prototype.RPC_findValue = function() {}
 
 /**
  * 
- * @param {Buffer} message 
+ * @param {Buffer} message
+ * @todo needs message decoding mechanism 
  */
 RpcAdapter.prototype._onMessage = function(message) {
-    console.log(message.toString());
+    const json = JSON.parse(message.toString());
+    const type = json.type;
+
+    switch(type) {
+        case "FIND_NODE": this.emit('FIND_NODE', {id:message.payload});
+            break;
+    }
 }
 
 /**

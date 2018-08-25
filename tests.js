@@ -1,7 +1,7 @@
 const {NodeId} = require('./id');
 const KBucket = require('./k-bucket');
 const Contact = require('./contact');
-const RpcAdapter = require('./rpcAdapter');
+const RpcAdapter = require('./rpc');
 const DHT = require('./dht');
 
 const address = process.argv[2]; //remote address of gateway
