@@ -3,10 +3,10 @@ const Contact        = require('./contact');
 const dgram          = require('dgram');
 const {EventEmitter} = require('events')
 
-
+/////DON'T USE THIS ANYMORE. //////
 
 function RpcAdapter(address,port) {
-    const emitter = EventEmitter.call(this);
+    const emitter = EventEmitter.call();
     RpcAdapter.prototype = Object.create(emitter.prototype);
 
     this._address = address;

@@ -15,6 +15,10 @@ function DHT(rpcAdapter) {
     this._port = rpcAdapter.getPort();
     this._routingTable = new RoutingTable(this._id);
     this._shortList = new ShortList(this._id);
+
+    this._rpc.onFindNode((nodeId)=>{
+        console.log('Need to go find k closest nodes to ', nodeId);
+    })
 }
 
 //statics

@@ -44,6 +44,14 @@ class RpcAdapter extends EventEmitter {
         })
     }
 
+    /**
+     * 
+     * @param {Function} handler 
+     */
+    onFindNode(handler) {
+        this.on("FIND_NODE", handler);
+    }
+
     RPC_store() {}
     RPC_ping() {}
     PRC_findValue() {}
@@ -58,7 +66,7 @@ class RpcAdapter extends EventEmitter {
         const type = json.type;
         console.log(json)
         switch(type) {
-            case "FIND_NODE": this.emit('FIND_NODE', {id:message.payload});
+            case "FIND_NODE": this.emit('FIND_NODE', {id:json.payload});
                 break;
         }
     }
