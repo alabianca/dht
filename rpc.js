@@ -35,21 +35,17 @@ class RpcAdapter extends EventEmitter {
      */
     RPC_findNode(ip,port,nodeId) {
         return new Promise((resolve,reject)=>{
-            console.log(ip);
-            console.log(port);
-            console.log(nodeId);
-            const msg = JSON.stringify({type: "FIND_NODE", payload: nodeId});
+            const msg = JSON.stringify({
+                type: "FIND_NODE", 
+                payload: {
+                    remoteAddress:ip,
+                    remotePort:port,
+                    nodeId:nodeId
+                }
+            });
     
             this._send(msg,{port,address:ip}, ()=> resolve());
         })
-    }
-
-    /**
-     * 
-     * @param {Function} handler 
-     */
-    onFindNode(handler) {
-        this.on("FIND_NODE", handler);
     }
 
     RPC_store() {}
@@ -62,13 +58,21 @@ class RpcAdapter extends EventEmitter {
      * @todo needs message decoding mechanism 
      */
     _onMessage(message) {
-        const json = JSON.parse(message.toString());
-        const type = json.type;
-        console.log(json)
+        const payload = JSON.parse(message.toString());
+        const type = payload.type;
+        console.log(payload)
         switch(type) {
-            case "FIND_NODE": this.emit('FIND_NODE', {id:json.payload});
+            case "FIND_NODE": this.emit('FIND_NODE', payload);
                 break;
         }
+    }
+
+    /**
+     * 
+     * @param {Function} handler 
+     */
+    onFindNode(handler) {
+        this.on("FIND_NODE", handler);
     }
 
     /**

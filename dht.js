@@ -16,14 +16,15 @@ function DHT(rpcAdapter) {
     this._routingTable = new RoutingTable(this._id);
     this._shortList = new ShortList(this._id);
 
-    this._rpc.onFindNode((nodeId)=>{
-        console.log('Need to go find k closest nodes to ', nodeId);
-    })
+    //event listeners
+    this._rpc.onFindNode(this._onFindNodes.bind(this));
 }
 
 //statics
-DHT.ALPHA  = 3; // concurrency limit
+DHT.ALPHA       = 3; // concurrency limit
+DHT.K           = 20;
 DHT.NODE_LOOKUP = 0;
+
 
 /**
  * @param {Contact} [gateway] optional gateway
@@ -50,6 +51,22 @@ DHT.bootstrap = function(rpcAdapter,gateway,bootstrapped) {
 
 /**
  * 
+ * @param {*} data {remoteAddress:string,remotePort:number,nodeId: string (hex value of nodeId to look up)}
+ */
+DHT.prototype._onFindNodes = function(data) {
+    const id = NodeId.fromHash(data.payload.nodeId);
+    const contact = new Contact(id,data.payload.remoteAddress + ":" + data.payload.remotePort);
+    // Kademlia states that every incoming message (besides a Ping should result in an attempted store)
+    this.store(contact, ()=>{
+        console.log('Storing Op complete');
+        console.log(this._routingTable.toString());
+        const contacts = this._routingTable.findNodes(id,DHT.K);
+    })
+    
+}
+
+/**
+ * 
  * @param {Contact} contact
  * @param {Function} done 
  */
@@ -71,6 +88,8 @@ DHT.prototype._doBootstrap = function(gateway, done) {
     this.store(gateway, ()=> {
         // 2. do node lookup for own id
         this._nodeLookup(this._id);
+        // 3. let caller know that initial initialization is complete. 
+        done();
     });
 }
 

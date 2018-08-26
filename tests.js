@@ -14,7 +14,16 @@ const adapter = new RpcAdapter("127.0.0.1", 5454); //local
 const id = NodeId.fromHash(gatewayId);
 const gateway = new Contact(id,address+":"+port);
 
-const dht = DHT.bootstrap(adapter,gateway);
+DHT.bootstrap(adapter,gateway, (dht)=> {
+    console.log('Initializing DHT... Finding closest neighbors');
+    console.log('_____________________________________________');
+    console.log(dht._routingTable.toString());
+    console.log('<-------------------------------------------------->')
+    console.log('Node is ready: ');
+    console.log('Node ID: ' + dht._id.toString('hex'));
+    console.log('IP: ' + dht._address);
+    console.log('Port: ' + dht._port);
+});
 
 
 
