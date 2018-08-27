@@ -23,7 +23,7 @@ RoutingTable.SIZE = 160;
  * @returns {[Contact]}
  */
 RoutingTable.prototype.findNodes = function(nodeId,amount) {
-    const nodes = [];
+    let nodes = [];
     const distance = this._id.distanceTo(nodeId);
     const bucketIndex = this._findKBucket(distance);
     const bucket = this._kbuckets[bucketIndex];

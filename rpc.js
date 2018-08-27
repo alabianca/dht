@@ -38,8 +38,8 @@ class RpcAdapter extends EventEmitter {
             const msg = JSON.stringify({
                 type: "FIND_NODE", 
                 payload: {
-                    remoteAddress:ip,
-                    remotePort:port,
+                    remoteAddress:this._address,
+                    remotePort:this._port,
                     nodeId:nodeId
                 }
             });

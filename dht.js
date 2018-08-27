@@ -58,8 +58,6 @@ DHT.prototype._onFindNodes = function(data) {
     const contact = new Contact(id,data.payload.remoteAddress + ":" + data.payload.remotePort);
     // Kademlia states that every incoming message (besides a Ping should result in an attempted store)
     this.store(contact, ()=>{
-        console.log('Storing Op complete');
-        console.log(this._routingTable.toString());
         const contacts = this._routingTable.findNodes(id,DHT.K);
     })
     
