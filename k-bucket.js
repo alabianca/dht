@@ -28,10 +28,9 @@ KBucket.prototype.getXClosestNodes = function(nodeId,x) {
 
     this._data.forEach((contact,index)=> {
         const delta = nodeId.distanceTo(contact.getId());
-        map[delta] = index; //keep track of distances and their index of the corresponding node. This is possible as distances between Ids are uniform
+        map[delta.toString()] = index; //keep track of distances and their index of the corresponding node. This is possible as distances between Ids are uniform
         distances.push(delta);
     });
-
     //sort the distances. Simple bubble sort. 
     //TODO: think of a way to optimize this somehow. however, not a big deal as the bucket size will never be larger than 20
     for(let i = 0; i < distances.length; i++) {
@@ -40,7 +39,7 @@ KBucket.prototype.getXClosestNodes = function(nodeId,x) {
             if(distances[j+1] && distances[j].compareDistanceTo(distances[j+1]) === -1) { //if distance[j] is larger do swap
                 const smaller = distances[j+1];
                 distances[j+1] = distances[j];
-                distances[j+1] = smaller;
+                distances[j] = smaller;
 
             }
         }
