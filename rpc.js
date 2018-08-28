@@ -12,6 +12,7 @@ class RpcAdapter extends EventEmitter {
         this._address = address;
         this._port = port;
         this._tasks = new TaskQueue(RpcAdapter.CONCURRENCY);
+        this._responseQueue = new TaskQueue(RpcAdapter.CONCURRENCY);
 
         this._socket = dgram.createSocket('udp4');
         this._socket.on('message', this._onMessage.bind(this));
@@ -58,6 +59,7 @@ class RpcAdapter extends EventEmitter {
      * @todo needs message decoding mechanism 
      */
     _onMessage(message) {
+        console.log(message);
         const payload = JSON.parse(message.toString());
         const type = payload.type;
         console.log(payload)
@@ -88,6 +90,33 @@ class RpcAdapter extends EventEmitter {
         }
     }
 
+    /**
+     * 
+     * @param {Number} command which rpc command we are responding to
+     * @param {*} payload an arbitiary object
+     * Note: command => 0: FIND_NODE
+     */
+    respond(command,payload) {
+        switch(command) {
+            case RpcAdapter.COMMAND_MAPPINGS.FIND_NODE: this._enqueueFindNodeResponse(payload);
+                break; 
+        }
+    }
+
+    /**
+     * 
+     * @param {String} ip 
+     * @param {Number} port 
+     * @param {Buffer} nodeId 
+     * @param {Buffer} payload 
+     */
+    _respond(ip,port,nodeId,payload) {
+        return new Promise((resolve,reject)=>{
+            const msg = Buffer.concat([nodeId,payload],nodeId.length + payload.length);
+            this._send(msg,{address:ip,port,port}, ()=> resolve());
+        });
+    }
+
     _enqueueFindNode(ip,port,nodeId) {
         const task = this.RPC_findNode.bind(this,ip,port,nodeId);
         this._tasks.pushTask(task);
@@ -95,12 +124,28 @@ class RpcAdapter extends EventEmitter {
 
     /**
      * 
-     * @param {*} msg 
+     * @param {*} data {host,port,nodeId (Buffer),contacts (Buffer)}
+     */
+    _enqueueFindNodeResponse(data) {
+        const task = this._respond.bind(this,data.host,data.port,data.nodeId,data.contacts);
+        this._responseQueue.pushTask(task);
+    }
+
+    /**
+     * 
+     * @param {String | Buffer} msg 
      * @param {*} remote {port,address}
      */
     _send(msg,remote,sent) {
-        const buf = Buffer.from(msg);
-        const l = buf.length;
+        let buf;
+        let l;
+        if(typeof msg === 'string') {
+            buf = Buffer.from(msg);
+            l = buf.length;
+        } else {
+            buf = msg;
+            l = buf.length;
+        }
         this._socket.send(buf,0,l,remote.port,remote.address,sent );
     }
 
@@ -110,10 +155,10 @@ class RpcAdapter extends EventEmitter {
 //statics
 RpcAdapter.CONCURRENCY = 3;
 RpcAdapter.COMMAND_MAPPINGS = {
-    0: "FIND_NODE",
-    1: "STORE",
-    2: "PING",
-    3: "FIND_VALUE"
+    FIND_NODE: 0,
+    STORE: 1,
+    PING: 2,
+    FIND_VALUE: 3
 }
 
 module.exports = RpcAdapter;

@@ -61,8 +61,20 @@ DHT.prototype._onFindNodes = function(data) {
         //find closest nodes to looked up nodeId.
         //filter out the nodeId in the results.
         //TODO: filter out the nodeId in findNodes to be more efficient.
-        const contacts = this._routingTable.findNodes(id,DHT.K)
+        let contacts = this._routingTable.findNodes(id,DHT.K)
                                            .filter(c => !c.getId().equal(contact.getId()));
+
+        const responseBuffer = Buffer.allocUnsafe(contacts.length * NodeId.SIZE);
+        contacts.forEach((c,index)=> responseBuffer[index] = c.getId()._buffer);
+        
+        const response = {
+            host:     data.payload.remoteAddress,
+            port:     data.payload.remotePort,
+            nodeId:   this._id._buffer,
+            contacts: responseBuffer
+        }
+
+        this._rpc.respond(DHT.NODE_LOOKUP, response);
 
     })
     
