@@ -134,8 +134,6 @@ DHT.prototype._doBootstrap = function(gateway, done) {
 DHT.prototype._nodeLookup = function(nodeId) {
     // 1. find ALPHA nodes in routing table closest to id
     const alphaNodes = this._routingTable.findNodes(nodeId,DHT.ALPHA);
-    console.log('Found Alpha Nodes')
-    alphaNodes.forEach(c => console.log(c.toString()));
     // 2. Store in short list
     alphaNodes.forEach(contact => this._shortList.add(contact))
     // 3. Send FIND_NODE_RPC's to nodes
