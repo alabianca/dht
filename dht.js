@@ -18,6 +18,7 @@ function DHT(rpcAdapter) {
 
     //event listeners
     this._rpc.onFindNode(this._onFindNodes.bind(this));
+    this._rpc.onResponse(this._onRpcResponse.bind(this));
 }
 
 //statics
@@ -67,7 +68,11 @@ DHT.prototype._onFindNodes = function(data) {
         const response = {
             host:     data.payload.remoteAddress,
             port:     data.payload.remotePort,
-            nodeId:   this._id,
+            node:   {
+                id: this._id,
+                host: this._address,
+                port: this._port
+            },
             contacts: contacts
         }
 
@@ -75,6 +80,22 @@ DHT.prototype._onFindNodes = function(data) {
 
     })
     
+}
+
+/**
+ * 
+ * @param {*} data data that is returned from an RPC. Data should always contain a 'type' property to indicate
+ * what type of response it is. For example if it is a response as a result from a FIND_NODE RPC. Each action is different
+ * data should always also contain a node property which is the senders triplet (nodeId [hex], host, port)
+ */
+DHT.prototype._onRpcResponse = function(data) {
+    const id = NodeId.fromHash(data.node.id); //the senders nodeId
+    const contact = new Contact(id, data.node.host + ":" + data.node.port);
+
+    this.store(contact, ()=>{
+        console.log('Attempted to store responder ..');
+        console.log(data);
+    })
 }
 
 /**
@@ -99,6 +120,7 @@ DHT.prototype._doBootstrap = function(gateway, done) {
     // 1. store gateway in appropriate k-bucket
     this.store(gateway, ()=> {
         // 2. do node lookup for own id
+        console.log('Stored Gateway: ' + gateway.getId().toString('hex'));
         this._nodeLookup(this._id);
         // 3. let caller know that initial initialization is complete. 
         done();
@@ -122,7 +144,7 @@ DHT.prototype._nodeLookup = function(nodeId) {
 }
 
 DHT.prototype.sendPing = function(contact,onResponse) {
-    
+    console.log('Need to send ping');
     //this will the the pinging of the rpc
     setTimeout(()=>{
         onResponse(true);

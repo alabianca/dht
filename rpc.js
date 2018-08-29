@@ -66,12 +66,13 @@ class RpcAdapter extends EventEmitter {
      * @todo needs message decoding mechanism 
      */
     _onMessage(message) {
-        console.log(message);
         const payload = JSON.parse(message.toString());
         const type = payload.type;
-        console.log(payload)
+
         switch(type) {
             case "FIND_NODE": this.emit('FIND_NODE', payload);
+                break;
+            case "FIND_NODE_R": this.emit('RESPONSE', payload);
                 break;
         }
     }
@@ -82,6 +83,13 @@ class RpcAdapter extends EventEmitter {
      */
     onFindNode(handler) {
         this.on("FIND_NODE", handler);
+    }
+    /**
+     * 
+     * @param {Function} handler 
+     */
+    onResponse(handler) {
+        this.on("RESPONSE", handler);
     }
 
     /**
@@ -145,7 +153,11 @@ class RpcAdapter extends EventEmitter {
         const payload = {
             type: "FIND_NODE_R",
             contacts:mappedContacts,
-            nodeId:data.nodeId.toString('hex')
+            node: {
+                host:data.node.host,
+                id: data.node.id.toString('hex'),
+                port:data.node.port
+            }
         }
         const task = this._respond.bind(this,data.host,data.port,payload);
         this._responseQueue.pushTask(task);
