@@ -4,6 +4,13 @@ const dgram          = require('dgram');
 const {EventEmitter} = require('events')
 
 
+/**
+ * @todo do message encoding. I am passing the data to the Rpc via regular JS objects which is fine.
+ * At the moment I am just turning them into json and stringifying them to send them via udp packets.
+ * That is not feasable and I need to do message encoding to create defined packets for each type of message
+ * For right now however I want to focus on making sure the DHT will be able to receive messages and do the
+ * correct ops
+ */
 class RpcAdapter extends EventEmitter {
 
     constructor(address,port) {
@@ -107,12 +114,12 @@ class RpcAdapter extends EventEmitter {
      * 
      * @param {String} ip 
      * @param {Number} port 
-     * @param {Buffer} nodeId 
-     * @param {Buffer} payload 
+     * @param {*} payload 
+     * @todo message encoding
      */
-    _respond(ip,port,nodeId,payload) {
+    _respond(ip,port,payload) {
         return new Promise((resolve,reject)=>{
-            const msg = Buffer.concat([nodeId,payload],nodeId.length + payload.length);
+            const msg = JSON.stringify(payload);
             this._send(msg,{address:ip,port,port}, ()=> resolve());
         });
     }
@@ -124,10 +131,23 @@ class RpcAdapter extends EventEmitter {
 
     /**
      * 
-     * @param {*} data {host,port,nodeId (Buffer),contacts (Buffer)}
+     * @param {*} data {host,port,nodeId (NodeId),contacts ([Contacts])}
+     * @todo message encoding
      */
     _enqueueFindNodeResponse(data) {
-        const task = this._respond.bind(this,data.host,data.port,data.nodeId,data.contacts);
+        const mappedContacts = data.contacts.map((c) => { //create an array of triplets
+            return {
+                remoteAddress: c.getIP(),
+                remotePort: c.getPort(),
+                nodeId: c.getId().toString('hex')
+            }
+        });
+        const payload = {
+            type: "FIND_NODE_R",
+            contacts:mappedContacts,
+            nodeId:data.nodeId.toString('hex')
+        }
+        const task = this._respond.bind(this,data.host,data.port,payload);
         this._responseQueue.pushTask(task);
     }
 
@@ -135,17 +155,11 @@ class RpcAdapter extends EventEmitter {
      * 
      * @param {String | Buffer} msg 
      * @param {*} remote {port,address}
+     * @todo this needs to just accept a Buffer in the future once msg encoding/decoding is implemented
      */
     _send(msg,remote,sent) {
-        let buf;
-        let l;
-        if(typeof msg === 'string') {
-            buf = Buffer.from(msg);
-            l = buf.length;
-        } else {
-            buf = msg;
-            l = buf.length;
-        }
+        const buf = Buffer.from(msg);
+        const l = buf.length;        
         this._socket.send(buf,0,l,remote.port,remote.address,sent );
     }
 
