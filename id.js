@@ -60,7 +60,7 @@ NodeId.prototype.distanceTo = function(id) {
  * 
  * @param {NodeId} first 
  * @param {NodeId} second 
- * @returns 0 of distances are the same. 1 if first is 'closer', -1 if second is closer 
+ * @returns 0 if distances are the same. 1 if first is 'closer', -1 if second is closer 
  */
 NodeId.prototype.compareDistance = function(first,second) {
 
@@ -68,8 +68,6 @@ NodeId.prototype.compareDistance = function(first,second) {
         const b1 = this._buffer[i] ^ first._buffer[i]; 
         const b2 = this._buffer[i] ^ second._buffer[i];
 
-        // console.log(`Byte 1: ${b1} (${b1.toString(2)})`);
-        // console.log(`Byte 2: ${b2} (${b2.toString(2)})`);
         if(b1 < b2) {
             return 1;
         }
