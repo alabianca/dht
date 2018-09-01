@@ -30,6 +30,7 @@ DHT.NODE_LOOKUP = 0;
 /**
  * @param {Contact} [gateway] optional gateway
  * @param {*} rpcAdapter
+ * @param {Function} bootstrapped
  * @todo provide a RPC Adapter as first agrument to be provided in DHT constructor
  */
 DHT.bootstrap = function(rpcAdapter,gateway,bootstrapped) {
