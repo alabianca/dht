@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const {NodeId} = require('./id');
 const DHT = require('./dht');
 const Contact = require('./contact');
-const RpcAdapter = require('./rpc');
+const RpcAdapter = require('./rpc/rpc');
 
 const rpc1 = new RpcAdapter("127.0.0.1", "7000")
 //const rpc2 = new RpcAdapter("127.0.0.1", "5345");
