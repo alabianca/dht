@@ -3,7 +3,9 @@ const Contact  = require('./contact');
 const {NodeId} = require('./id');
 /**
  * 
- * @param {NodeId} ownId 
+ * @param {NodeId} ownId
+ * @todo IMPLEMENT _nodes AS A TREEMAP
+ * THIS ENSURES QUICKER LOOKUP AND LESS MEMORY AND ENSURES MAP IS SORTED  
  */
 function ShortList(ownId) {
     this._id = ownId;
