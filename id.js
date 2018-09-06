@@ -137,6 +137,10 @@ function Distance(buf) {
  */
 Distance.prototype.compareDistanceTo = function(other) {
 
+    if(!other) {
+        return -1;
+    }
+
     for(let i = 0; i < this._buf.length; i++) {
         if(this._buf[i] > other._buf[i]) {
             return -1;

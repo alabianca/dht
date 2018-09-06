@@ -136,7 +136,8 @@ DHT.prototype._nodeLookup = function(nodeId) {
     // 1. find ALPHA nodes in routing table closest to id
     const alphaNodes = this._routingTable.findNodes(nodeId,DHT.ALPHA);
     // 2. Store in short list
-    alphaNodes.forEach(contact => this._shortList.add(contact))
+    this._shortList.setTargetId(nodeId);
+    alphaNodes.forEach(contact => this._shortList.add(contact, 0))
     // 3. Send FIND_NODE_RPC's to nodes
     this._rpc.enqueue(DHT.NODE_LOOKUP, nodeId, ...this._shortList.getXNodes(DHT.ALPHA));
     
