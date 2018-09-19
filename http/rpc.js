@@ -1,5 +1,5 @@
-const {NodeId}       = require('../id');
-const Contact        = require('../contact');
+const {NodeId}       = require('../core/id');
+const Contact        = require('../core/contact');
 const dgram          = require('dgram');
 const {EventEmitter} = require('events')
 

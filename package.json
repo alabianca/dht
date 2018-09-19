@@ -1,0 +1,23 @@
+{
+  "name": "kademlia",
+  "version": "1.0.0",
+  "description": "This is the start of an attempt to implement a DHT based on Kademlia written in javaScript (Node.js). If you like to learn more about Kademlia and its implementation a good place to start is [Kademlia: A Peer-to-peer Information System Based on the XOR metric](https://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf) and [Kademlia: a Design Specification](http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html).",
+  "main": "driver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alabianca/dht.git"
+  },
+  "dependencies": {
+    "btree-treemap": "git+https://git@github.com/alabianca/trees.js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alabianca/dht/issues"
+  },
+  "homepage": "https://github.com/alabianca/dht#readme"
+}
