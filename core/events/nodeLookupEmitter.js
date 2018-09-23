@@ -198,7 +198,7 @@ class NodeLookupEmitter extends EventEmitter {
 NodeLookupEmitter.RPC_COMMAND = 0;
 NodeLookupEmitter.ALPHA       = 3;
 NodeLookupEmitter.TRIGGER     = "FIND_NODE_R";
-NodeLookupEmitter.K           = 20;
+NodeLookupEmitter.K           = 5;
 
 
 //provide a singelton

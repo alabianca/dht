@@ -64,6 +64,7 @@ DHT.prototype._onFindNodes = function(data) {
     const contact = new Contact(id,data.payload.remoteAddress + ":" + data.payload.remotePort);
     // Kademlia states that every incoming message (besides a Ping should result in an attempted store)
     this.store(contact, ()=>{
+        console.log(this._routingTable.toString())
         //find closest nodes to looked up nodeId.
         //filter out the nodeId in the results.
         //TODO: filter out the nodeId in findNodes to be more efficient.
