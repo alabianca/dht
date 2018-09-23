@@ -1,0 +1,12 @@
+{
+    "dht": {
+        "concurrency": "3",
+        "K"          : "20"
+    },
+    "kBucket": {
+        "capacity": "20"
+    },
+    "node_lookup": {
+        "timeout": 2000
+    }
+}
