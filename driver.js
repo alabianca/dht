@@ -44,7 +44,7 @@ function addContacts(contacts,done) {
     iterate(0);
 }
 
-addContacts(contacts, ()=>{
+addContacts([], ()=>{
     console.log('Node is ready: ');
     console.log('Node ID: ' + dht1._id.toString('hex'));
     console.log('IP: ' + dht1._address);

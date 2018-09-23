@@ -80,7 +80,9 @@ class NodeLookupEmitter extends EventEmitter {
             }
         }
 
-        this._doBookkeeping(rpcResponse.contacts, rpcResponse.node);
+        if(this._doBookkeeping(rpcResponse.contacts, rpcResponse.node)) {
+            return;
+        }
 
         //
         if(this._lookupList._enquired.nodes.length == 0) {
@@ -162,7 +164,6 @@ class NodeLookupEmitter extends EventEmitter {
                 all = false;
             }
         }
-
         return all;
     }
 
@@ -187,7 +188,7 @@ class NodeLookupEmitter extends EventEmitter {
                 break;
             }
         }
-        
+
         this.emit("complete", {nodes:closestNodes});
 
 

@@ -8,7 +8,10 @@ const address = process.argv[2]; //remote address of gateway
 const port = process.argv[3]; //remote port of gateway
 const gatewayId = process.argv[4]; //remote id of gateway
 
-const adapter = new RpcAdapter("127.0.0.1", 5454); //local 
+const myAddr = process.argv[5];
+const myPort = process.argv[6];
+
+const adapter = new RpcAdapter(myAddr, myPort); //local 
 
 
 const id = NodeId.fromHash(gatewayId);

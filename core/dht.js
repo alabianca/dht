@@ -99,6 +99,7 @@ DHT.prototype._onRpcResponse = function(data) {
 
     this.store(contact, ()=>{
         console.log('Attempted to store responder ..');
+        console.log('Responder: ', contact.getId().toString('hex'));
     })
 }
 
