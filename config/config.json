@@ -1,6 +1,6 @@
 {
     "dht": {
-        "concurrency": "3",
+        "alpha": "3",
         "K"          : "20"
     },
     "kBucket": {
@@ -8,5 +8,8 @@
     },
     "node_lookup": {
         "timeout": 2000
+    },
+    "rpc": {
+        "concurrency": "3"
     }
 }
