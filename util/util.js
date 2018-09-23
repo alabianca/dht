@@ -44,6 +44,10 @@ const Utils = {
 
         return res;
 
+    },
+
+    concatAddr_Port: function(addr,port) {
+        return addr + ":" + port;
     }
 }
 

@@ -5,7 +5,7 @@ const ShortList    = require('./shortList');
 const LookupList   = require('./lookupList');
 const Utils        = require('../util/util');
 const crypto       = require('crypto');
-
+const NodeLookup   = require('./events/nodeLookupEmitter');
 /**
  * 
  * @param {*} rpcAdapter 
@@ -17,8 +17,9 @@ function DHT(rpcAdapter) {
     this._port = rpcAdapter.getPort();
     this._routingTable = new RoutingTable(this._id);
     this._shortList = new ShortList(this._id);
-    //test
-    this._lookupList = null;
+    //RPC event emitters
+    this.nodeLookupEmitter = NodeLookup(rpcAdapter);
+    this.nodeLookupEmitter.on('complete', this._onNodeLookupComplete.bind(this));
     //event listeners
     this._rpc.onFindNode(this._onFindNodes.bind(this));
     this._rpc.onResponse(this._onRpcResponse.bind(this));
@@ -98,30 +99,6 @@ DHT.prototype._onRpcResponse = function(data) {
 
     this.store(contact, ()=>{
         console.log('Attempted to store responder ..');
-        data.contacts.forEach((contact) => {
-            const cId = NodeId.fromHash(contact.nodeId);
-            const value = contact.remoteAddress + ":" + contact.remotePort;
-            const c = new Contact(cId,value);
-            this._lookupList.add(c);
-        });
-        //look how it is stored. is it sorted?
-        const distances = []
-        for(let key of this._lookupList._list) {
-            //console.log(this._lookupList._list.get(key));
-            // const i = this._lookupList._list.get(key).contact.getId();
-            // console.log(Utils.NodeIdToBinary(i))
-            console.log(Utils.DistanceToBinary(key));
-            distances.push(key)
-        }
-        
-        console.log(distances[0].compareDistanceTo(distances[1]))
-        console.log(distances[0].compareDistanceTo(distances[2]))
-        console.log(distances[0].compareDistanceTo(distances[3]))
-        console.log(distances[0].compareDistanceTo(distances[4]))
-        console.log(distances[0].compareDistanceTo(distances[5]))
-        console.log(distances[0].compareDistanceTo(distances[6]))
-        console.log(distances[0].compareDistanceTo(distances[7]))
-        console.log(distances[0].compareDistanceTo(distances[8]))
     })
 }
 
@@ -157,19 +134,35 @@ DHT.prototype._doBootstrap = function(gateway, done) {
 /**
  * 
  * @param {NodeId} nodeId id to be looked up
+ * Kicks off the node lookup procedure
  */
 DHT.prototype._nodeLookup = function(nodeId) {
     // 1. find ALPHA nodes in routing table closest to id
     const alphaNodes = this._routingTable.findNodes(nodeId,DHT.ALPHA);
-    // 2. Store in short list
-    this._shortList.setTargetId(nodeId);
-    alphaNodes.forEach(contact => this._shortList.add(contact, 0));
-    //Test the Treemap
-    this._lookupList = new LookupList(nodeId);
-    alphaNodes.forEach(contact => this._lookupList.add(contact));
-    // 3. Send FIND_NODE_RPC's to nodes
-    this._rpc.enqueue(DHT.NODE_LOOKUP, nodeId, ...this._shortList.getXNodes(DHT.ALPHA));
-    
+    // 2. Store in short list && and enqueue
+    this.nodeLookupEmitter.start(nodeId, alphaNodes);    
+}
+
+
+/**
+ * 
+ * @param {Object} data {nodes: [queried:bool,answered:bool,contact:Contact]}
+ */
+DHT.prototype._onNodeLookupComplete = function(data) {
+    const self  = this;
+    const nodes = data.nodes;
+    function iterate(index) {
+        if(index === nodes.length) {
+            console.log(self._routingTable.toString());
+            return;
+        }
+
+        self.store(nodes[index].contact, ()=>{
+            iterate(index+1);
+        });
+    }
+
+    iterate(0);
 }
 
 DHT.prototype.sendPing = function(contact,onResponse) {
