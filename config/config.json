@@ -1,13 +1,14 @@
 {
     "dht": {
         "alpha": "3",
-        "K"          : "20"
+        "K"    : "20"
     },
     "kBucket": {
         "capacity": "20"
     },
     "node_lookup": {
-        "timeout": 2000
+        "timeout": "2000",
+        "K"      : "20"
     },
     "rpc": {
         "concurrency": "3"
