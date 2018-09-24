@@ -19,7 +19,7 @@ function DHT(rpcAdapter) {
     this._shortList = new ShortList(this._id);
     //RPC event emitters
     this.nodeLookupEmitter = NodeLookup(rpcAdapter);
-    this.nodeLookupEmitter.on('complete', this._onNodeLookupComplete.bind(this));
+    //this.nodeLookupEmitter.on('complete', this._onNodeLookupComplete.bind(this));
     //event listeners
     this._rpc.onFindNode(this._onFindNodes.bind(this));
     this._rpc.onResponse(this._onRpcResponse.bind(this));
@@ -127,9 +127,28 @@ DHT.prototype._doBootstrap = function(gateway, done) {
     this.store(gateway, ()=> {
         // 2. do node lookup for own id
         console.log('Stored Gateway: ' + gateway.getId().toString('hex'));
-        this._nodeLookup(this._id);
-        // 3. let caller know that initial initialization is complete. 
-        done();
+        this._nodeLookup(this._id,()=>{
+            // 3. do node lookups for all k-buckets with higher index than the one of the lowest non empty bucket
+            let ids = [];
+            let index = 0;
+            // find index of first non empty bucket +1
+            for(let i = 0; i < this._routingTable._kbuckets.length; i++) {
+                if(this._routingTable._kbuckets[i].length > 0) {
+                    index = i;
+                    break;
+                }
+            }
+            this._routingTable._kbuckets.slice(index).forEach((bucket)=>{
+                let i = bucket._data.map(contact => contact.getId());
+                ids = [...ids, ...i];
+            });
+
+            this._sequentialNodeLookup(ids)
+                .then((resolve)=>{
+                    //finally return back to caller. bootstrapping is done
+                    done();
+                })
+        });
     });
 }
 
@@ -138,11 +157,43 @@ DHT.prototype._doBootstrap = function(gateway, done) {
  * @param {NodeId} nodeId id to be looked up
  * Kicks off the node lookup procedure
  */
-DHT.prototype._nodeLookup = function(nodeId) {
+DHT.prototype._nodeLookup = function(nodeId,cb) {
     // 1. find ALPHA nodes in routing table closest to id
     const alphaNodes = this._routingTable.findNodes(nodeId,DHT.ALPHA);
     // 2. Store in short list && and enqueue
+    this.nodeLookupEmitter.once('complete', (neighbors)=>{
+        this._onNodeLookupComplete(neighbors,()=>{
+            cb();
+        })
+    })
     this.nodeLookupEmitter.start(nodeId, alphaNodes);    
+}
+
+/**
+ * 
+ * @param {[NodeId]} nodeIds 
+ */
+DHT.prototype._sequentialNodeLookup = function(nodeIds) {
+    const self = this;
+
+    const promise = new Promise((resolve,reject)=>{
+
+        function iterate(index) {
+            if(index === nodeIds.length) {
+                return resolve();
+            }
+
+            const id = nodeIds[index];
+            console.log('Sequential Node Lookup for: ', id.toString('hex'));
+            self._nodeLookup(id,()=>{
+                iterate(index+1);
+            });
+        }
+
+        iterate(0);
+    });
+
+    return promise;
 }
 
 
@@ -150,13 +201,14 @@ DHT.prototype._nodeLookup = function(nodeId) {
  * 
  * @param {Object} data {nodes: [queried:bool,answered:bool,contact:Contact]}
  */
-DHT.prototype._onNodeLookupComplete = function(data) {
+DHT.prototype._onNodeLookupComplete = function(data,cb) {
     const self  = this;
     const nodes = data.nodes;
     function iterate(index) {
         if(index === nodes.length) {
+            console.log('Lookup Complete');
             console.log(self._routingTable.toString());
-            return;
+            return cb();
         }
 
         self.store(nodes[index].contact, ()=>{
