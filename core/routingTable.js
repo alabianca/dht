@@ -74,11 +74,16 @@ RoutingTable.prototype.findNodes = function(nodeId,amount) {
  * @param {Contact} contact 
  */
 RoutingTable.prototype.storeContact = function(contact, pingFunc, cb) {
-    //const delta = this._id.distanceTo(contact);
-    const distance = this._id.distanceTo(contact.getId());
-    const bucketIndex = this._findKBucket(distance);
-    const bucket = this._kbuckets[bucketIndex];
-    bucket.add(contact, pingFunc, cb);
+    
+    //do not accidentally store myself
+    if(this._id.equal(contact.getId())) {
+        process.nextTick(cb);
+    } else {
+        const distance = this._id.distanceTo(contact.getId());
+        const bucketIndex = this._findKBucket(distance);
+        const bucket = this._kbuckets[bucketIndex];
+        bucket.add(contact, pingFunc, cb);
+    }
 }
 
 /**
