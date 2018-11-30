@@ -25,6 +25,7 @@ const c8 = new Contact(NodeId.generateRandomId(), "127.0.0.1:4507");
 const contacts = [c1,c2,c3,c4,c5,c6,c7,c8];
 
 const dht1 = DHT.bootstrap(rpc1);
+console.log(dht1._id.toString());
 //const dht2  = DHT.bootstrap(dht1._id);
 
 function addContacts(contacts,done) {
